@@ -1,0 +1,50 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+
+struct Data {
+    int number;
+    char character;
+    std::string text;
+};
+
+int main() {
+    std::vector<Data> data = {
+        {42, 'A', "Hello"},
+        {123, 'B', "World"}
+    };
+
+    // Записываем данные в бинарный файл
+    std::ofstream outputFile("data.bin", std::ios::binary);
+    if (outputFile.is_open()) {
+        for (const Data& d : data) {
+            outputFile.write(reinterpret_cast<const char*>(&d), sizeof(Data));
+        }
+        outputFile.close();
+        std::cout << "Данные успешно сохранены в бинарном файле 'data.bin'\n";
+    } else {
+        std::cerr << "Ошибка открытия файла для записи\n";
+        return 1;
+    }
+
+    // Читаем данные из бинарного файла
+    std::ifstream inputFile("data.bin", std::ios::binary);
+    if (inputFile.is_open()) {
+        std::vector<Data> loadedData;
+        Data tempData;
+        while (inputFile.read(reinterpret_cast<char*>(&tempData), sizeof(Data))) {
+            loadedData.push_back(tempData);
+        }
+
+        std::cout << "Данные, загруженные из файла:\n";
+        for (const Data& d : loadedData) {
+            std::cout << "Number: " << d.number << ", Character: " << d.character << ", Text: " << d.text << "\n";
+        }
+        inputFile.close();
+    } else {
+        std::cerr << "Ошибка открытия файла для чтения\n";
+        return 1;
+    }
+
+    return 0;
+}
